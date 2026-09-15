@@ -8,7 +8,6 @@ trade against that quote, view trade history, and see the platform's
 accumulated commission.
 
 **Live demo:** https://miniopenfx-production.up.railway.app
-**Loom walkthrough:** `[link — added after recording]`
 
 ## Setup
 
@@ -143,7 +142,18 @@ balances, and permanently marks the quote as used.
 curl "http://localhost:3000/api/v1/trades?limit=20"
 ```
 ```json
-{ "trades": [ { "id": "...", "baseCurrency": "BTC", "...": "..." } ], "nextCursor": null }
+{
+  "trades": [
+    {
+      "id": "098f7b27-505c-425c-92b7-b39bed390b2b",
+      "quoteId": "288ba528-7a56-4b93-b4f2-dbfe1c221660",
+      "baseCurrency": "BTC", "quoteCurrency": "USD", "side": "BUY",
+      "amount": "0.1", "rate": "76492.42601", "commission": "7.641601",
+      "executedAt": "2026-09-15T15:35:38.291Z"
+    }
+  ],
+  "nextCursor": null
+}
 ```
 Paginated, most recent first. Pass `nextCursor` back as `?cursor=` to get
 the next page.
