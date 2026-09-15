@@ -1,6 +1,7 @@
 import express from "express";
 import type { PriceProvider } from "./services/priceProvider.js";
 import { BinancePriceProvider } from "./services/priceProvider.js";
+import { pricesRouter } from "./routes/prices.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export function createApp(priceProvider: PriceProvider = new BinancePriceProvider()) {
@@ -11,7 +12,9 @@ export function createApp(priceProvider: PriceProvider = new BinancePriceProvide
     res.json({ status: "ok" });
   });
 
-  // route mounting for prices/balances/quotes/trades/commission happens in later tasks
+  app.use("/api/v1/prices", pricesRouter(priceProvider));
+
+  // route mounting for balances/quotes/trades/commission happens in later tasks
 
   app.use(errorHandler);
   return app;
