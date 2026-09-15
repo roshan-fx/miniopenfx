@@ -8,6 +8,7 @@ trade against that quote, view trade history, and see the platform's
 accumulated commission.
 
 **Live demo:** https://miniopenfx-production.up.railway.app
+video link : https://www.loom.com/share/87329b1444c94b16b519f8fbc13a163a
 
 This is an API-only service — there is no homepage or UI, so the base URL
 above shows nothing on its own. These are the actual API endpoints,
