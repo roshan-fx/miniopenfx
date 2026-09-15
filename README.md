@@ -32,6 +32,18 @@ Postman, or similar):
 
 Full request/response details for each are in the [API reference](#api-reference) below.
 
+## Contents
+
+- [Setup](#setup)
+- [Running tests](#running-tests)
+- [Project structure](#project-structure)
+- [Data model](#data-model)
+- [API reference](#api-reference)
+- [Architecture](#architecture)
+- [Trade-offs and scope decisions](#trade-offs-and-scope-decisions)
+- [Deployment](#deployment)
+- [Tech stack](#tech-stack)
+
 ## Setup
 
 Requires Node.js 20+ and a local Postgres (Homebrew, in this case — Docker
@@ -77,6 +89,87 @@ set -a && source .env.test && set +a
 npx prisma migrate deploy
 npm test
 ```
+
+## Project structure
+
+```
+src/
+├── app.ts                    # wires routes + middleware together
+├── server.ts                 # entry point — starts the HTTP server
+├── config.ts                 # env-driven settings (spread, TTL, port)
+├── db.ts                     # shared Prisma client
+├── errors.ts                 # typed errors, each mapped to an HTTP status
+├── middleware/
+│   └── errorHandler.ts       # turns a thrown error into a JSON response
+├── routes/                   # thin HTTP layer — one file per endpoint
+│   ├── prices.ts
+│   ├── balances.ts
+│   ├── quotes.ts
+│   ├── trades.ts
+│   └── commission.ts
+└── services/                 # the actual business logic, no HTTP awareness
+    ├── priceProvider.ts      # Binance integration behind a swappable interface
+    ├── quotes.ts             # spread/rate calculation, quote creation
+    ├── trades.ts             # atomic trade execution + settlement
+    ├── balances.ts
+    └── commission.ts
+
+tests/                        # one file per feature, mirrors src/
+├── setup.ts                  # truncates + reseeds the test DB before each test
+├── helpers/
+│   └── fakePriceProvider.ts  # in-memory stand-in for Binance, used in every test
+└── *.test.ts
+
+prisma/
+├── schema.prisma             # the 3 tables — see Data model below
+├── migrations/                # versioned SQL, applied via `prisma migrate`
+└── seed.ts                    # seeds starting balances (idempotent)
+
+.github/workflows/ci.yml       # lint + typecheck + test, on every push
+```
+
+Routes only parse the request and call a service; services hold all the
+actual logic and never import anything HTTP-related. Tests mirror this same
+structure, one file per feature.
+
+## Data model
+
+Three Postgres tables (via Prisma), representing three different lifetimes:
+`Balance` is current state, `Quote` is a temporary offer that may or may not
+be taken, `Trade` is a permanent record of what actually happened.
+
+**`Balance`** — one row per currency, the current holdings.
+| Field | Type | Notes |
+|---|---|---|
+| `currency` | String (PK) | `"USD"`, `"BTC"`, `"ETH"`, or `"SOL"` |
+| `amount` | Decimal(28,10) | Current balance |
+
+**`Quote`** — a frozen, time-limited price offer.
+| Field | Type | Notes |
+|---|---|---|
+| `id` | String (PK, UUID) | Referenced by `POST /trades` |
+| `baseCurrency` / `quoteCurrency` | String | e.g. `BTC` / `USD` |
+| `side` | `BUY` \| `SELL` | Direction of the trade |
+| `amount` | Decimal(28,10) | How much `baseCurrency` |
+| `midPrice` | Decimal(28,10) | Raw Binance price at quote time |
+| `rate` | Decimal(28,10) | `midPrice` adjusted by the spread — the frozen, tradeable price |
+| `consumed` | Boolean | Flips to `true` the moment a trade executes against it |
+| `createdAt` / `expiresAt` | DateTime | `expiresAt` = `createdAt` + `QUOTE_TTL_SECONDS` |
+
+**`Trade`** — a completed, executed transaction.
+| Field | Type | Notes |
+|---|---|---|
+| `id` | String (PK, UUID) | |
+| `quoteId` | String (FK, **unique**) | One quote can produce at most one trade — enforced at the DB level |
+| `baseCurrency` / `quoteCurrency` / `side` / `amount` / `rate` | — | Copied from the quote at execution time |
+| `commission` | Decimal(28,10) | `amount × \|midPrice − rate\|` |
+| `executedAt` | DateTime | |
+
+`Quote.id` ↔ `Trade.quoteId` is a 1-to-(0 or 1) relationship: a quote starts
+with no trade, and either expires unused or gets exactly one trade created
+against it — the `@unique` constraint on `quoteId` is what makes "trade
+against the same quote twice" structurally impossible, not just an
+application-level check.
 
 ## API reference
 
