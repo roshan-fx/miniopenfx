@@ -2,10 +2,17 @@
 
 [![CI](https://github.com/roshan-fx/miniopenfx/actions/workflows/ci.yml/badge.svg)](https://github.com/roshan-fx/miniopenfx/actions/workflows/ci.yml)
 
-An API-only FX/crypto-FX quoting and trading service. A single client can
-fetch live prices, check balances, request a time-limited quote, execute a
-trade against that quote, view trade history, and see the platform's
-accumulated commission.
+An API-only FX/crypto-FX quoting and trading service, modeled after how
+institutional FX platforms quote and settle trades. A single client can
+fetch live prices for BTC, ETH, and SOL against USD (sourced from Binance),
+check balances, request a time-limited quote (a frozen rate with a short
+expiry), execute a trade against that specific quote, view trade history,
+and see the platform's accumulated commission — the margin earned from the
+spread built into every quote.
+
+Built with Node.js, TypeScript, Express, and Postgres (via Prisma); fully
+covered by an automated test suite; deployed live with CI running on every
+push.
 
 **Live demo:** https://miniopenfx-production.up.railway.app
 **Loom walkthrough:** https://www.loom.com/share/87329b1444c94b16b519f8fbc13a163a
