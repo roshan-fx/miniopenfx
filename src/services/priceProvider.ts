@@ -33,8 +33,11 @@ export class BinancePriceProvider implements PriceProvider {
     const symbol = BINANCE_SYMBOLS[baseCurrency];
     let res: Response;
     try {
+      // data-api.binance.vision is Binance's public, read-only market-data
+      // mirror. api.binance.com geo-blocks some hosting regions (returns
+      // 451) even for public price data; this endpoint doesn't.
       res = await fetch(
-        `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`,
+        `https://data-api.binance.vision/api/v3/ticker/price?symbol=${symbol}`,
       );
     } catch {
       throw new UpstreamError("Failed to reach Binance");
