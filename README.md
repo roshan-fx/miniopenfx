@@ -106,7 +106,7 @@ curl -X POST http://localhost:3000/api/v1/quotes \
 }
 ```
 `rate` is frozen at creation time (mid-price adjusted by a 0.1% spread —
-buy above mid, sell below) and expires 10 seconds later. Both are
+buy above mid, sell below) and expires 30 seconds later. Both are
 configurable via `QUOTE_SPREAD` / `QUOTE_TTL_SECONDS`.
 
 ### `POST /api/v1/trades`
