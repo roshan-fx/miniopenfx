@@ -9,6 +9,21 @@ accumulated commission.
 
 **Live demo:** https://miniopenfx-production.up.railway.app
 
+This is an API-only service — there is no homepage or UI, so the base URL
+above shows nothing on its own. These are the actual API endpoints,
+reachable directly (GET ones work in a browser; POST ones need curl,
+Postman, or similar):
+
+- `GET` https://miniopenfx-production.up.railway.app/health
+- `GET` https://miniopenfx-production.up.railway.app/api/v1/prices
+- `GET` https://miniopenfx-production.up.railway.app/api/v1/balances
+- `POST` https://miniopenfx-production.up.railway.app/api/v1/quotes
+- `POST` https://miniopenfx-production.up.railway.app/api/v1/trades
+- `GET` https://miniopenfx-production.up.railway.app/api/v1/trades
+- `GET` https://miniopenfx-production.up.railway.app/api/v1/commission
+
+Full request/response details for each are in the [API reference](#api-reference) below.
+
 ## Setup
 
 Requires Node.js 20+ and a local Postgres (Homebrew, in this case — Docker
