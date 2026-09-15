@@ -30,8 +30,9 @@ describe("POST /api/v1/trades", () => {
     expect(Number(res.body.commission)).toBeCloseTo(0.1 * 62340.5 * 0.001, 4);
 
     const balances = await request(app).get("/api/v1/balances");
-    const usd = balances.body.balances.find((b: any) => b.currency === "USD");
-    const btc = balances.body.balances.find((b: any) => b.currency === "BTC");
+    const balanceRows = balances.body.balances as { currency: string; amount: string }[];
+    const usd = balanceRows.find((b) => b.currency === "USD");
+    const btc = balanceRows.find((b) => b.currency === "BTC");
     expect(Number(usd.amount)).toBeCloseTo(10000 - 0.1 * Number(quote.rate), 4);
     expect(Number(btc.amount)).toBeCloseTo(0.1, 8);
   });
