@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Side {
+  BUY
+  SELL
+}
+
+model Balance {
+  currency String  @id
+  amount   Decimal @db.Decimal(28, 10)
+}
+
+model Quote {
+  id              String   @id @default(uuid())
+  baseCurrency    String
+  quoteCurrency   String
+  side            Side
+  amount          Decimal  @db.Decimal(28, 10)
+  midPrice        Decimal  @db.Decimal(28, 10)
+  rate            Decimal  @db.Decimal(28, 10)
+  consumed        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+  trade           Trade?
+}
+
+model Trade {
+  id            String   @id @default(uuid())
+  quoteId       String   @unique
+  quote         Quote    @relation(fields: [quoteId], references: [id])
+  baseCurrency  String
+  quoteCurrency String
+  side          Side
+  amount        Decimal  @db.Decimal(28, 10)
+  rate          Decimal  @db.Decimal(28, 10)
+  commission    Decimal  @db.Decimal(28, 10)
+  executedAt    DateTime @default(now())
+}
