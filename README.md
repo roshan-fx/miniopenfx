@@ -1,5 +1,7 @@
 # MiniOpenFX
 
+[![CI](https://github.com/roshan-fx/miniopenfx/actions/workflows/ci.yml/badge.svg)](https://github.com/roshan-fx/miniopenfx/actions/workflows/ci.yml)
+
 An API-only FX/crypto-FX quoting and trading service. A single client can
 fetch live prices, check balances, request a time-limited quote, execute a
 trade against that quote, view trade history, and see the platform's
@@ -157,27 +159,6 @@ curl http://localhost:3000/api/v1/commission
 Sums the platform's earned margin (the spread baked into every quote)
 across all executed trades.
 
-## Deployment
-
-Deployed on Railway: a Node service (this repo, auto-deployed from
-GitHub) plus a managed Postgres add-on in the same project.
-
-- **Start command**: `npx prisma migrate deploy && npm run db:seed && npm start`
-  — every deploy applies any pending migrations and re-runs the (safely
-  idempotent) seed script before the server starts, so there's no separate
-  manual migration step against production.
-- **Env vars**: `DATABASE_URL` (referenced from the Postgres add-on),
-  `QUOTE_SPREAD`, `QUOTE_TTL_SECONDS`. `PORT` is left unset — Railway
-  injects its own, which `config.ts` already reads.
-- **A real production issue, found and fixed**: `api.binance.com` returned
-  `451 Unavailable For Legal Reasons` from Railway's hosting region — this
-  worked fine locally but failed the moment it was live, since Binance
-  geo-blocks some hosting regions even for public price data. Fixed by
-  switching to `data-api.binance.vision`, Binance's documented public,
-  read-only market-data mirror, which isn't subject to the same
-  restriction. One-line change, verified against the live deployment
-  afterward.
-
 ## Architecture
 
 ```
@@ -233,6 +214,27 @@ Client -> MiniOpenFX API (Express + TypeScript)
   connection is configured (a new `prisma.config.ts`/driver-adapter
   pattern) in a way that's still thinly documented; 6.x is the better-
   understood, lower-risk choice for a time-boxed, reviewer-run project.
+
+## Deployment
+
+Deployed on Railway: a Node service (this repo, auto-deployed from
+GitHub) plus a managed Postgres add-on in the same project.
+
+- **Start command**: `npx prisma migrate deploy && npm run db:seed && npm start`
+  — every deploy applies any pending migrations and re-runs the (safely
+  idempotent) seed script before the server starts, so there's no separate
+  manual migration step against production.
+- **Env vars**: `DATABASE_URL` (referenced from the Postgres add-on),
+  `QUOTE_SPREAD`, `QUOTE_TTL_SECONDS`. `PORT` is left unset — Railway
+  injects its own, which `config.ts` already reads.
+- **A real production issue, found and fixed**: `api.binance.com` returned
+  `451 Unavailable For Legal Reasons` from Railway's hosting region — this
+  worked fine locally but failed the moment it was live, since Binance
+  geo-blocks some hosting regions even for public price data. Fixed by
+  switching to `data-api.binance.vision`, Binance's documented public,
+  read-only market-data mirror, which isn't subject to the same
+  restriction. One-line change, verified against the live deployment
+  afterward.
 
 ## Tech stack
 
