@@ -3,6 +3,7 @@ import type { PriceProvider } from "./services/priceProvider.js";
 import { BinancePriceProvider } from "./services/priceProvider.js";
 import { pricesRouter } from "./routes/prices.js";
 import { balancesRouter } from "./routes/balances.js";
+import { quotesRouter } from "./routes/quotes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export function createApp(priceProvider: PriceProvider = new BinancePriceProvider()) {
@@ -15,8 +16,9 @@ export function createApp(priceProvider: PriceProvider = new BinancePriceProvide
 
   app.use("/api/v1/prices", pricesRouter(priceProvider));
   app.use("/api/v1/balances", balancesRouter());
+  app.use("/api/v1/quotes", quotesRouter(priceProvider));
 
-  // route mounting for quotes/trades/commission happens in later tasks
+  // route mounting for trades/commission happens in later tasks
 
   app.use(errorHandler);
   return app;
