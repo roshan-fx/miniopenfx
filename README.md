@@ -174,7 +174,10 @@ application-level check.
 ## API reference
 
 All routes are versioned under `/api/v1`. Errors share the shape
-`{ "error": { "code": "...", "message": "..." } }`.
+`{ "error": { "code": "...", "message": "..." } }`. Any endpoint can also
+return `503 DATABASE_ERROR` if Postgres itself is unreachable — this is
+cross-cutting (handled once, centrally, in the error middleware) rather
+than something each endpoint checks for individually.
 
 ### `GET /api/v1/prices`
 
