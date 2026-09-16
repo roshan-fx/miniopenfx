@@ -38,3 +38,9 @@ export class UpstreamError extends AppError {
     super(message, 502, "UPSTREAM_ERROR");
   }
 }
+
+export class DatabaseError extends AppError {
+  constructor(message: string) {
+    super(message, 503, "DATABASE_ERROR");
+  }
+}
