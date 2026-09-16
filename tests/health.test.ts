@@ -10,3 +10,13 @@ describe("GET /health", () => {
     expect(res.body).toEqual({ status: "ok" });
   });
 });
+
+describe("GET /", () => {
+  it("returns service info instead of a bare 404", async () => {
+    const app = createApp();
+    const res = await request(app).get("/");
+    expect(res.status).toBe(200);
+    expect(res.body.service).toBe("MiniOpenFX");
+    expect(res.body.endpoints).toBeDefined();
+  });
+});

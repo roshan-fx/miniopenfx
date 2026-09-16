@@ -16,6 +16,22 @@ export function createApp(priceProvider: PriceProvider = new BinancePriceProvide
     res.json({ status: "ok" });
   });
 
+  app.get("/", (_req, res) => {
+    res.json({
+      service: "MiniOpenFX",
+      message: "API-only FX/crypto quoting and trading service — no UI.",
+      endpoints: {
+        health: "GET /health",
+        prices: "GET /api/v1/prices",
+        balances: "GET /api/v1/balances",
+        createQuote: "POST /api/v1/quotes",
+        executeTrade: "POST /api/v1/trades",
+        tradeHistory: "GET /api/v1/trades",
+        commission: "GET /api/v1/commission",
+      },
+    });
+  });
+
   app.use("/api/v1/prices", pricesRouter(priceProvider));
   app.use("/api/v1/balances", balancesRouter());
   app.use("/api/v1/quotes", quotesRouter(priceProvider));
